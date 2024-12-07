@@ -1,45 +1,67 @@
-# Functions to download and preprocess PDFs
+# Functions to download and process PDFs
 # Should take in URL, Arxiv ID, or raw PDF upload/filepath
 import regex as re
 import os
+import requests
 import unstructured
+from doi2pdf import doi2pdf
 
+class DownloadManager():
+    def __init__(self, download_directory="./data/"):
+        """
+        Initialize download manager with specified download directory.
+        Parameters:
+        - download_directory: Directory where files will be downloaded to.
+        """
+        self.download_directory = download_directory
+        os.makedirs(self.download_directory, exist_ok=True)
 
-def download_from_url(url):
-    return
+    def download_pdf(self, url, filename=None):
+        """
+        Download a file from the given URL and save it to the specified directory.
+        Parameters:
+        - url: URL of the file to be downloaded.
+        - filename: Name to save the file as. If None, it uses the name from the URL.
 
-def download_arxiv(url_or_id, arxiv_id_pattern = re.compile(r"\d{4}\.\d{4,5}(v\d+)?$")):
-    # Convert to URL
-    if arxiv_id_pattern.match(url_or_id):
-        url_or_id = "https://www.arxiv.org/pdf/" + url_or_id + ".pdf"
-    return
+        Returns:
+        Full filepath to the downloaded file or an error message.
+        """
+        arxiv_id_pattern = re.compile(r"\d{4}\.\d{4,5}(v\d+)?$")
+        arxiv_url_pattern = re.compile(r"https?://(?:www\.)?arxiv\.org/(abs|pdf)/(\d{4}\.\d{4,5})(v\d+)?(\.pdf)?$")
+        doi_url_pattern = re.compile(r"")
 
-def download_pdf(url_or_filepath, download_directory="./data/"):
-    # If url, preprocess and download from url
-    # If filepath, preprocess 
-    # Returns processed pdf file, should be standardized regardless of input
+        # URL Preprocessing for specific formats
+        # Should convert id to link, abs to pdf for arxiv
+        if arxiv_id_pattern.match(url):
+            # Convert id into pdf link
+            url = "https://www.arxiv.org/pdf/" + url + ".pdf"
+        elif arxiv_url_pattern.match(url) and 'abs' in url:
+            # Convert abstract into pdf for direct download
+            url_segments = url.split('abs')
+            url_segments.insert(1, 'pdf')
+            url = ''.join(url_segments)
 
-    # Check URL/path type
-    # Pattern to match a direct arXiv ID or URL
-    arxiv_id_pattern = re.compile(r"\d{4}\.\d{4,5}(v\d+)?$")
-    arxiv_url_pattern = re.compile(r"https?://(?:www\.)?arxiv\.org/(abs|pdf)/(\d{4}\.\d{4,5})(v\d+)?(\.pdf)?$")
-    if arxiv_id_pattern.match(url_or_filepath) or arxiv_url_pattern.match(url_or_filepath):
-        document = download_arxiv(url_or_filepath)
-    else:
-        # Check for filepath validity
+        # If a DOI link is identified, use doi2pdf to download instead
+        # Else, use regular requests
         try:
-            if not os.path.exists(url_or_filepath):
-                raise FileNotFoundError(f"The file {url_or_filepath} does not exist.")
-
-            with open(url_or_filepath, 'r') as file:
-                # Read pdf using unstructured
-                process_pdf(filepath)
-
-        except FileNotFoundError as e:
-            print(e)
-
-    # Default
-    return None    
-
-def process_pdf(filepath):
-    return
+            # Send a GET request to the URL
+            response = requests.get(url, stream=True)
+            response.raise_for_status()  # Raise an error for HTTP errors
+            
+            # Determine the file name
+            if filename is None:
+                filename = url.split("/")[-1]
+            if filename[-4:] != '.pdf': filename += '.pdf'
+            
+            # Full path to save the file
+            file_path = os.path.join(self.download_directory, filename)
+            
+            # Write the file content to the specified path
+            with open(file_path, "wb") as file:
+                for chunk in response.iter_content(chunk_size=8192):
+                    file.write(chunk)
+            
+            return f"File downloaded successfully: {file_path}"
+        
+        except requests.exceptions.RequestException as e:
+            return f"Error downloading file: {e}"
