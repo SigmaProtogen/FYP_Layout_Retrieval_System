@@ -3,7 +3,6 @@
 import regex as re
 import os
 import requests
-import unstructured
 from doi2pdf import doi2pdf
 
 class DownloadManager():
