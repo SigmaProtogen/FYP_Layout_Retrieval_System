@@ -9,6 +9,6 @@ class PDFManager():
     # Read and process a PDF file from a path using Unstructured
     # If downloaded from arxiv, will call using data dir
     # Else if uploaded, path will be extracted from FileInput or FileSelector
-    def read_from_path(filepath):
-        elements = partition_pdf(filepath)
+    def read_from_path(self, filepath):
+        elements = partition_pdf(filepath, strategy='hi_res')
 

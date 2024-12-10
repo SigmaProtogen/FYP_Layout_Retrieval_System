@@ -47,15 +47,12 @@ class DownloadManager():
             response = requests.get(url, stream=True)
             response.raise_for_status()  # Raise an error for HTTP errors
             
-            # Determine the file name
             if filename is None:
                 filename = url.split("/")[-1]
-            if filename[-4:] != '.pdf': filename += '.pdf'
+            if filename[-4:] != '.pdf': filename += '.pdf' # Append filenames with pdf
             
             # Full path to save the file
             file_path = os.path.join(self.download_directory, filename)
-            
-            # Write the file content to the specified path
             with open(file_path, "wb") as file:
                 for chunk in response.iter_content(chunk_size=8192):
                     file.write(chunk)
