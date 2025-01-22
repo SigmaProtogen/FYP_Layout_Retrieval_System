@@ -11,7 +11,9 @@ pdf_manager = PDFManager()
 test_pdf = pdf_manager.read_from_path("./data/1706.03762.pdf")
 
 print(test_pdf.page_count)
-pages = [page.get_pixmap() for page in test_pdf]
+pages = [page.get_pixmap(dpi=300) for page in test_pdf]
 pil_pages = [pdf_manager.pixmap_to_pil(page) for page in pages]
-page_features = pdf_manager.extract_features(pil_pages)
-print(page_features)
+
+question = "What BLEU did the authors achieve in their paper?"
+ans = pdf_manager.vqa(test_pdf, question)
+print(ans)
