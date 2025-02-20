@@ -1,4 +1,5 @@
 import transformers
+import torch
 from transformers import LayoutLMv3ForQuestionAnswering, LayoutLMv3ImageProcessor, LayoutLMv3Processor, LayoutLMv3TokenizerFast
 import pymupdf
 from PIL import Image
@@ -7,12 +8,11 @@ from PIL import Image
 # Main class for processing
 class PDFManager():
     def __init__(self, model_name="microsoft/layoutlmv3-base"):
-        self.model = LayoutLMv3ForQuestionAnswering.from_pretrained("HYPJUDY/layoutlmv3-base-finetuned-publaynet")
-        self.processor = LayoutLMv3Processor.from_pretrained("microsoft/layoutlmv3-base")
+        self.model = LayoutLMv3ForQuestionAnswering.from_pretrained(model_name)
+        self.processor = LayoutLMv3Processor.from_pretrained(model_name)
         self.image_processor = LayoutLMv3ImageProcessor.from_pretrained("microsoft/layoutlmv3-base")
-        self.tokenizer = LayoutLMv3TokenizerFast.from_pretrained("microsoft/layoutlmv3-base", add_prefix_space=True)
-
-        print(f'Using model {self.model}')
+        self.tokenizer = LayoutLMv3TokenizerFast.from_pretrained(model_name, add_prefix_space=True)
+        print(f'Using model {model_name}')
     
     # Read and process a PDF file from a path using PyMuPDF
     # If downloaded from arxiv, will call using data dir
@@ -44,48 +44,39 @@ class PDFManager():
             page_features.append(self.image_processor(page))
         return page_features
 
+
+    # UPDATE: Multimodal Chunking of a page
+    # Should return a structured element with document and page identifier to link relevant info to source
+    # Different modes for ablation study on performance (text, visual, layout, multi)
+    def chunk_page(self, mode='multi'):
+        # possible mode: Selecting region from LayoutLMv3 first pass and:
+            # Extracting any text in the region, Saving the region as an image, Saving layout-dependent objects (e.g. tables)
+        
+        
+        return True
+
+
     # Function for visual question answering using LayoutLMv3
     # Uses both text and image modality, extract features and use both features and original image
-    def vqa(self, document, query):
+    def vqa(self, document, question):
         page = document[0] # Initial test: Use first page
 
-        words = page.get_text("words")  # Returns a list of (x0, y0, x1, y1, word, block_no, line_no, word_no)
-        text_data = []
-        bboxes = []
-
-        
-        for word in words:
-            x0, y0, x1, y1, text, *_ = word
-            text_data.append(text)
-            bboxes.append([int(x0), int(y0), int(x1), int(y1)])
-        
         # Extract page image if available
         image = self.pixmap_to_pil(page.get_pixmap(dpi=300))
 
-        #features = self.extract_features(page)
-        words = page.get_text("words")  # Returns a list of (x0, y0, x1, y1, word, block_no, line_no, word_no)
-        text_data = []
-        bboxes = []
-        for word in words:
-            x0, y0, x1, y1, text, *_ = word
-            text_data.append(text)
-            bboxes.append([int(x0), int(y0), int(x1), int(y1)])
+        # Extract features
+        features = self.image_processor(image)
+        context = features.words
+        boxes = features.boxes
 
-        inputs = self.processor(
-            text=query,
-            #boxes=bboxes,
-            images=image,
-            return_tensors="pt",
-            truncation=True,
-            padding="max_length",
-        )
-        # Process query into inputs
-        #inputs.update(self.processor(text=query, return_tensors="pt"))
+        #question = "Is this a question?"
+        # context = ["Example"]
+        # boxes = [[0, 0, 1000, 1000]]  # This is an example bounding box covering the whole image.
+        document_encoding = self.processor(image, question, context, boxes=boxes, return_tensors="pt")
+        outputs = self.model(**document_encoding)
 
-        # Inference and decoding
-        outputs = self.model(**inputs)
-        answer_start = outputs.start_logits.argmax(dim=-1)
-        answer_end = outputs.end_logits.argmax(dim=-1)
-
-        ans = self.tokenizer.decode(inputs["input_ids"][0][answer_start:answer_end+1])
-        return ans
+        # Decode answer
+        start_idx = torch.argmax(outputs.start_logits, axis=1)
+        end_idx = torch.argmax(outputs.end_logits, axis=1)
+        answers = self.processor.tokenizer.decode(context[start_idx: end_idx+1]).strip()
+        return answers
