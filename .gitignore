@@ -6,6 +6,10 @@ __pycache__/
 # C extensions
 *.so
 
+# External packages
+detectron2/
+iopath/
+
 # Distribution / packaging
 .Python
 build/
