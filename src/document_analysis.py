@@ -1,27 +1,49 @@
-# Unified class
+import layoutparser as lp
+import pymupdf
+from PIL import Image
+import cv2
+import numpy as np
+import json
+from tqdm import tqdm
+
+import faiss
+import torch
+from transformers import CLIPProcessor, CLIPModel, CLIPConfig, CLIPTokenizer, AutoTokenizer, AutoModelForSequenceClassification
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+import os
+os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
+
+device = 'gpu' if torch.cuda.is_available() else 'cpu'
+
+# Unified class for processing, analyzing and storing a document
 class DocumentAnalysis():
-    def __init__(self, embedding_model = "openai/clip-vit-base-patch32", cross_encoder_model = "cross-encoder/ms-marco-MiniLM-L6-v2"):
-        # Layout detection
+    def __init__(self, embedding_model = "openai/clip-vit-base-patch32", cross_encoder_model = "cross-encoder/ms-marco-MiniLM-L6-v2", read_from_existing=False):
+         # Layout detection
         self.model = lp.Detectron2LayoutModel('lp://PubLayNet/mask_rcnn_R_50_FPN_3x/config', 
                                  extra_config=["MODEL.ROI_HEADS.SCORE_THRESH_TEST", 0.8],
-                                 label_map={0: "Text", 1: "Title", 2: "List", 3:"Table", 4:"Figure"})
+                                 label_map={0: "Text", 1: "Title", 2: "List", 3:"Table", 4:"Figure"},
+                                 device=device)
         self.ocr_agent = lp.TesseractAgent(languages='eng') 
 
         # Dual encoders for embeddings
-        self.clip_model = CLIPModel.from_pretrained(embedding_model)
+        self.clip_model = CLIPModel.from_pretrained(embedding_model, device_map=device)
         self.clip_processor = CLIPProcessor.from_pretrained(embedding_model)
         self.tokenizer = CLIPTokenizer.from_pretrained(embedding_model)
         self.text_splitter = RecursiveCharacterTextSplitter.from_huggingface_tokenizer(self.tokenizer, chunk_size=77, chunk_overlap=5)
 
         # Cross encoder for retrieval-reranking
         self.cross_encoder_tokenizer = AutoTokenizer.from_pretrained(cross_encoder_model)
-        self.cross_encoder = AutoModelForSequenceClassification.from_pretrained(cross_encoder_model)        
+        self.cross_encoder = AutoModelForSequenceClassification.from_pretrained(cross_encoder_model).to(device)       
 
         # Vectorstore variables
         self.dimension = 512  # CLIP's embedding size
         self.faiss_index = faiss.IndexFlatL2(self.dimension) # FAISS Vector store
         self.metadata_store = {}  # Store mapping of IDs and document page number to content
         self.vector_dir = '../data/.vectorstore/' # Directory to write data to
+
+        # Read from existing vector store and metadata if specified
+        if read_from_existing: self.faiss_read
 
     # Read a PDF document using PyMuPDF
     # Returns list of page images in cv2 format
@@ -49,6 +71,7 @@ class DocumentAnalysis():
         figure_blocks = lp.Layout([b for b in layout if b.type=='Figure'])
 
         # Processing text blocks
+        # Sourced from LayoutParser's Deep Layout Analysis example
         # Eliminate text blocks nested in images/figures
         text_blocks = lp.Layout([b for b in text_blocks \
                         if not any(b.is_in(b_fig) for b_fig in figure_blocks)])
@@ -66,14 +89,13 @@ class DocumentAnalysis():
         text_blocks = lp.Layout([b.set(id = idx) for idx, b in enumerate(left_blocks + right_blocks)])
 
         # Perform OCR to extract text
-        for block in text_blocks + title_blocks + list_blocks + table_blocks:
+        for block in text_blocks + title_blocks + list_blocks + table_blocks + figure_blocks:
             # Add padding in each image segment to improve robustness
             text = self._ocr_on_block(image, block)
             block.set(text=text, inplace=True) # Assign parsed text to block element
             
         # Return all blocks on the page as a list
-        # Omit titles as it affects retrieval
-        return text_blocks + list_blocks + table_blocks + figure_blocks
+        return text_blocks + title_blocks + list_blocks + table_blocks + figure_blocks
 
     # Function to crop an image given block's bbox and additional padding
     def _crop_image(self, image, block, padding=10):
@@ -105,6 +127,18 @@ class DocumentAnalysis():
             embedding = self.clip_model.get_image_features(**inputs).numpy()
         return embedding / np.linalg.norm(embedding)  # Normalize
 
+    # Function to encode both image and text simultaneously
+    def encode_multimodal(self, image, text=None):
+        # If no text detected, format to empty list
+        if text is None or len(text)==0: text=[]
+        inputs = self.clip_processor(images=image, text=[text], return_tensors='pt')
+        # Get image embeddings
+        inputs_image = {'pixel_values': inputs['pixel_values']}
+        with torch.no_grad():
+            embedding = self.clip_model.get_image_features(**inputs_image).numpy()
+        return embedding / np.linalg.norm(embedding)  # Normalize
+        
+
     # Function to add item to FAISS
     # Specify content, type, page and bounding box from blocks
     def add_to_faiss(self, embedding, content, content_type, page_idx, bbox):
@@ -112,17 +146,11 @@ class DocumentAnalysis():
         self.faiss_index.add(embedding)
         self.metadata_store[idx] = {"type": content_type, "content": content, "page": page_idx, "bbox": bbox}
     
-    # Perform retrieval (and rerank)
-    def search_faiss(self, query, k=10):
+    # Perform retrieval and reranking
+    def search_faiss(self, query, k=15, n=5):
         query_embedding = self.encode_text(query)
         _, indices = self.faiss_index.search(query_embedding, k)
-        # Convert to int (faiss_read may change it to numpy)
         indices = [int(i) for i in indices[0]]
-        
-        # Display retrieved items
-        # retrieved items accessed by metadata_store using fetched indices
-        for idx in indices:
-            print(f"Retrieved {self.metadata_store[idx]['type']}: {self.metadata_store[idx]['content']}")
         
         # Cross encoder reranking on text modality
         answers = [self.metadata_store[idx] for idx in indices if self.metadata_store[idx]['type']!='Figure']
@@ -132,12 +160,12 @@ class DocumentAnalysis():
         with torch.no_grad(): # Rerank
             scores = self.cross_encoder(**features).logits
 
-        # Select index with best score
-        best_index = np.argmax(scores)
-        best_answer = answers[best_index] # Answer with full metadata for downstream
+        # Get indices of the top n scores
+        best_indices = np.argsort(np.array(scores.flatten()))[-n:][::-1]  # Sort and reverse
 
-        # Display for debug
-        print(scores, best_answer)
+        # Retrieve responses using the indices
+        best_answers = [answers[i] for i in best_indices]
+        return best_answers
 
 
     # Writes the vectorstore and metadata into a given path
@@ -153,3 +181,39 @@ class DocumentAnalysis():
     # Convert keys from string to int when deserializing
     def _convert_keys(self, d):
         return {int(k) if k.isdigit() else k: v for k, v in d.items()}
+
+    # Function to process all pages of a document given all the functions above
+    # Returns nothing, processes and ingests document into the object's metadata store
+    def process_document(self, doc):
+        for page_idx, page in enumerate(tqdm(doc)):
+            blocks = self.detect_layout(page)
+
+            # Processing for each block to be vectorized
+            for b in blocks:
+                if b.type == "Text":
+                    # Chunk text and create new blocks, and process for each block
+                    # Returns list even if unchanged
+                    chunks = self.chunk_text(b.text)
+                    for chunk in chunks:
+                        # Encode as text and add to FAISS
+                        # Embeddings use the chunks, but metadata contains original text for completion
+                        text_embs = self.encode_text(chunk)
+                        self.add_to_faiss(
+                            embedding=text_embs, 
+                            content=b.text, 
+                            content_type=b.type, 
+                            page_idx=page_idx, 
+                            bbox=b.block.coordinates
+                        )
+                else:
+                    # Multimodal for images and layout
+                    # Crop and get image embeddings
+                    segmented_image = self._crop_image(page, b, padding=20)
+                    multimodal_embs = self.encode_multimodal(segmented_image, b.text)
+                    self.add_to_faiss(
+                        embedding=multimodal_embs, 
+                        content=b.text, 
+                        content_type=b.type, 
+                        page_idx=page_idx, 
+                        bbox=b.block.coordinates
+                    )

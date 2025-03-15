@@ -1,91 +1,79 @@
 import panel as pn
-import fitz  # PyMuPDF
-from PIL import Image
-from io import BytesIO
+import io
+from PIL import Image, ImageDraw
+from document_analysis import DocumentAnalysis
 
+pn.extension()
 
-class PDFViewerInterface:
+class PDFInterface:
     def __init__(self):
-        # Initialize widgets
-        self.pdf_path_input = pn.widgets.FileInput(name="Upload PDF", accept=".pdf")
-        self.page_slider = pn.widgets.IntSlider(name="Page", start=0, end=0, value=0)
-
-        # Set up layout
-        self.sidebar = pn.Column(
-            "## Sidebar",
-            self.pdf_path_input,
-            self.page_slider,
-            width=250,
+        self.file_input = pn.widgets.FileInput(accept='.pdf', name='Upload PDF')
+        self.text_input = pn.widgets.TextInput(name='Enter Query', placeholder='Type your query here...')
+        self.process_button = pn.widgets.Button(name='Process', button_type='primary')
+        
+        self.pdf_pane = pn.pane.PDF(None, width=600, height=800)
+        self.message = pn.pane.Alert("Upload a PDF to start.", alert_type="info")
+        
+        self.file_input.param.watch(self.load_pdf, 'value')
+        self.process_button.on_click(self.process_query)
+        
+        self.layout = pn.Row(
+            pn.Column("## Controls", self.file_input, self.text_input, self.process_button, self.message, width=300),
+            self.pdf_pane
         )
-        self.main_content = pn.Column(
-            "## PDF Viewer",
-            self.render_pdf,
-            width=700,
-        )
-        self.layout = pn.Row(self.sidebar, self.main_content)
 
-        # Attach widget dependencies
-        self.pdf_path_input.param.watch(self.update_page_slider, "value")
-        self.page_slider.param.watch(self.render_pdf, "value")
+        # Document Analysis class
 
-        # Internal state
-        self.temp_pdf_path = "/tmp/temp.pdf"
-
-    def extract_pdf_pages(self, pdf_path):
-        # Replace with pdf_manager implementation
-        """
-        Extracts all pages of a PDF as images.
-
-        Args:
-            pdf_path (str): Path to the PDF file.
-
-        Returns:
-            list: List of PIL images, one for each page.
-        """
-        doc = fitz.open(pdf_path)
-        pages = []
-
-        for page_num in range(len(doc)):
-            page = doc[page_num]
-            pixmap = page.get_pixmap(dpi=150)
-            image = Image.open(BytesIO(pixmap.tobytes("png")))
-            pages.append(image)
-
-        doc.close()
-        return pages
-
-    def update_page_slider(self, event):
-        """
-        Updates the page slider's range based on the uploaded PDF.
-        """
-        if event.new:
-            # Save the uploaded PDF to a temporary file
-            with open(self.temp_pdf_path, "wb") as f:
-                f.write(event.new)
-
-            # Update slider range based on the number of pages
-            doc = fitz.open(self.temp_pdf_path)
-            num_pages = len(doc)
-            doc.close()
-
-            self.page_slider.start = 0
-            self.page_slider.end = num_pages - 1
-            self.page_slider.value = 0
-
-    def render_pdf(self, event=None):
-        """
-        Renders the currently selected PDF page as an image in Panel.
-        """
-        if self.pdf_path_input.value:
-            # Extract pages from the temporary PDF file
-            pages = self.extract_pdf_pages(self.temp_pdf_path)
-            page_index = self.page_slider.value
-            img = pages[page_index]
-
-            # Display the image
-            self.main_content[:] = [pn.pane.PNG(img, width=700, height=900)]
-        else:
-            self.main_content[:] = [pn.pane.Markdown("**Upload a PDF to display its pages.**")]
-
-    def get_layout(self):
+    
+    def load_pdf(self, event):
+        if self.file_input.value:
+            self.pdf_pane.object = io.BytesIO(self.file_input.value)
+            self.message.alert_type = "success"
+            self.message.object = "PDF loaded successfully."
+    
+    def process_query(self, event):
+        if not self.file_input.value:
+            self.message.alert_type = "danger"
+            self.message.object = "Please upload a PDF first."
+            return
+        
+        query = self.text_input.value.strip()
+        if not query:
+            self.message.alert_type = "warning"
+            self.message.object = "Please enter a query."
+            return
+        
+        # Example function to simulate bounding box retrieval
+        bounding_boxes = self.get_bounding_boxes()
+        self.update_pdf_with_boxes(bounding_boxes)
+    
+    def get_bounding_boxes(self):
+        # Placeholder function: In reality, you’d get these from a model
+        return [(100, 150, 300, 200), (50, 400, 250, 450)]
+    
+    def update_pdf_with_boxes(self, bounding_boxes):
+        pdf_bytes = io.BytesIO(self.file_input.value)
+        doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+        
+        for page in doc:
+            pix = page.get_pixmap()
+            img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+            draw = ImageDraw.Draw(img)
+            for bbox in bounding_boxes:
+                draw.rectangle(bbox, outline="red", width=3)
+            
+            # For demonstration, updating only the first page
+            break
+        
+        updated_pdf = io.BytesIO()
+        doc.save(updated_pdf)
+        self.pdf_pane.object = updated_pdf
+        self.message.alert_type = "info"
+        self.message.object = "PDF updated with bounding boxes."
+    
+    def show(self):
         return self.layout
+
+if __name__ == "__main__":
+    pdf_app = PDFInterface()
+    pdf_app.show().servable()
