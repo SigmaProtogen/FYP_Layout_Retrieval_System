@@ -1,9 +1,11 @@
 import panel as pn
+import pymupdf  # PyMuPDF
 import io
-from PIL import Image, ImageDraw
-from document_analysis import DocumentAnalysis
+from document_analysis import DocumentAnalysis  # Import the DocumentAnalysis class
 
 pn.extension()
+
+document_processor = DocumentAnalysis()
 
 class PDFInterface:
     def __init__(self):
@@ -18,18 +20,18 @@ class PDFInterface:
         self.process_button.on_click(self.process_query)
         
         self.layout = pn.Row(
-            pn.Column("## Controls", self.file_input, self.text_input, self.process_button, self.message, width=300),
+            pn.Column("## Control", self.file_input, self.text_input, self.process_button, self.message, width=300),
             self.pdf_pane
         )
-
-        # Document Analysis class
-
     
     def load_pdf(self, event):
         if self.file_input.value:
-            self.pdf_pane.object = io.BytesIO(self.file_input.value)
+            pdf_bytes = io.BytesIO(self.file_input.value)
+            self.pages = document_processor.read_from_bytes(pdf_bytes.getvalue())  # Load PDF pages
+            self.pdf_pane.object = pdf_bytes
             self.message.alert_type = "success"
             self.message.object = "PDF loaded successfully."
+            self.layout.show()
     
     def process_query(self, event):
         if not self.file_input.value:
@@ -43,30 +45,27 @@ class PDFInterface:
             self.message.object = "Please enter a query."
             return
         
-        # Example function to simulate bounding box retrieval
-        bounding_boxes = self.get_bounding_boxes()
+        # Process document and retrieve bounding boxes
+        document_processor.process_document(self.pages)
+        results = document_processor.search_faiss(query)
+        bounding_boxes = [result['bbox'] for result in results]
+        
         self.update_pdf_with_boxes(bounding_boxes)
-    
-    def get_bounding_boxes(self):
-        # Placeholder function: In reality, you’d get these from a model
-        return [(100, 150, 300, 200), (50, 400, 250, 450)]
     
     def update_pdf_with_boxes(self, bounding_boxes):
         pdf_bytes = io.BytesIO(self.file_input.value)
-        doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+        doc = pymupdf.open(stream=pdf_bytes, filetype="pdf")
         
-        for page in doc:
-            pix = page.get_pixmap()
-            img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
-            draw = ImageDraw.Draw(img)
+        for page_idx, page in enumerate(doc):
             for bbox in bounding_boxes:
-                draw.rectangle(bbox, outline="red", width=3)
+                if bbox["page"] == page_idx:  # Draw only on the correct page
+                    rect = pymupdf.Rect(bbox["bbox"])
+                    page.insert_rect(rect, color=(1, 0, 0), width=3)
             
-            # For demonstration, updating only the first page
-            break
-        
         updated_pdf = io.BytesIO()
         doc.save(updated_pdf)
+        updated_pdf.seek(0)
+        
         self.pdf_pane.object = updated_pdf
         self.message.alert_type = "info"
         self.message.object = "PDF updated with bounding boxes."
@@ -74,6 +73,3 @@ class PDFInterface:
     def show(self):
         return self.layout
 
-if __name__ == "__main__":
-    pdf_app = PDFInterface()
-    pdf_app.show().servable()

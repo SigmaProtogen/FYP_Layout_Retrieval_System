@@ -40,7 +40,7 @@ class DocumentAnalysis():
         self.dimension = 512  # CLIP's embedding size
         self.faiss_index = faiss.IndexFlatL2(self.dimension) # FAISS Vector store
         self.metadata_store = {}  # Store mapping of IDs and document page number to content
-        self.vector_dir = '../data/.vectorstore/' # Directory to write data to
+        self.vector_dir = './data/.vectorstore/' # Directory to write data to
 
         # Read from existing vector store and metadata if specified
         if read_from_existing: self.faiss_read
@@ -49,6 +49,12 @@ class DocumentAnalysis():
     # Returns list of page images in cv2 format
     def read_from_path(self, filepath):
         doc = pymupdf.open(filepath)
+        return [self.pixmap_to_cv2(page.get_pixmap(dpi=300)) for page in doc]
+
+    # Function to read pdf from bytestream
+    # To be used with Panel's FileInput
+    def read_from_bytes(self, pdf_bytes):
+        doc = pymupdf.open(stream=pdf_bytes, filetype="pdf")
         return [self.pixmap_to_cv2(page.get_pixmap(dpi=300)) for page in doc]
 
     # Convert PyMuPDF pixmap to cv2
