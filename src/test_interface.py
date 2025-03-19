@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import panel as pn
 import io
+import pymupdf
 from document_analysis import DocumentAnalysis
 
 pn.extension(template='fast')
@@ -40,13 +41,31 @@ def process_query(event):
     message.alert_type = "info"
     message.object = "Processing query..."
     # Process document and retrieve bounding boxes
-    # Answer is in list/dict format for bbox and fulltext extraction
+    # Answer is in list[dict] format for bbox and fulltext extraction
     answers = document_processor.search_faiss(query, n=3)
     print(answers)
     
-    # Update pdf with bounding boxes from answer
-    bboxes = []
+    # Update pdf with bounding boxes from answer and annotate on 
+    bboxes = [a['bbox'] for a in answers]
+    update_pdf_with_boxes(bboxes)
     
+def update_pdf_with_boxes(bboxes):
+    pdf_bytes = io.BytesIO(file_input.value)
+    doc = pymupdf.open(stream=pdf_bytes, filetype="pdf")
+    
+    for page_idx, page in enumerate(doc):
+        for bbox in bounding_boxes:
+            if bbox["page"] == page_idx:  # Draw only on the correct page
+                rect = pymupdf.Rect(bbox["bbox"])
+                page.insert_rect(rect, color=(1, 0, 0), width=3)
+        
+    updated_pdf = io.BytesIO()
+    # doc.save(updated_pdf)
+    updated_pdf.seek(0)
+    
+    pdf_pane.object = updated_pdf
+    message.alert_type = "info"
+    message.object = "PDF updated with bounding boxes."
 
 
 # PDF Upload on sidebar (FileInput)
