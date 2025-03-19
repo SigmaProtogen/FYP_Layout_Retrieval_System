@@ -18,9 +18,9 @@ device = 'gpu' if torch.cuda.is_available() else 'cpu'
 
 # Unified class for processing, analyzing and storing a document
 class DocumentAnalysis():
-    def __init__(self, embedding_model = "openai/clip-vit-base-patch32", cross_encoder_model = "cross-encoder/ms-marco-MiniLM-L6-v2", read_from_existing=False):
+    def __init__(self, embedding_model = "openai/clip-vit-base-patch32", cross_encoder_model = "cross-encoder/ms-marco-MiniLM-L6-v2", vector_dir = "./data/.vectorstore/", read_from_existing=False):
          # Layout detection
-        self.model = lp.Detectron2LayoutModel('lp://PubLayNet/mask_rcnn_R_50_FPN_3x/config', 
+        self.model = lp.Detectron2LayoutModel('lp://PubLayNet/faster_rcnn_R_50_FPN_3x/config', 
                                  extra_config=["MODEL.ROI_HEADS.SCORE_THRESH_TEST", 0.8],
                                  label_map={0: "Text", 1: "Title", 2: "List", 3:"Table", 4:"Figure"},
                                  device=device)
@@ -40,7 +40,7 @@ class DocumentAnalysis():
         self.dimension = 512  # CLIP's embedding size
         self.faiss_index = faiss.IndexFlatL2(self.dimension) # FAISS Vector store
         self.metadata_store = {}  # Store mapping of IDs and document page number to content
-        self.vector_dir = './data/.vectorstore/' # Directory to write data to
+        self.vector_dir = vector_dir # Directory to write data to
 
         # Read from existing vector store and metadata if specified
         if read_from_existing: self.faiss_read
@@ -63,6 +63,13 @@ class DocumentAnalysis():
         image = bytes.reshape(pixmap.height, pixmap.width, pixmap.n)
         image = image[..., ::-1]
         return image
+
+    # Convert PIL jpeg to cv2
+    def pil_to_cv2(self, pil_image):
+        open_cv_image = np.array(pil_image)
+        open_cv_image = open_cv_image[:, :, ::-1].copy() # RBG to BGR
+        return open_cv_image
+
 
     # Takes in image object from read_from_path()
     # Detects layout -> Processes ROI by label
@@ -196,7 +203,7 @@ class DocumentAnalysis():
 
             # Processing for each block to be vectorized
             for b in blocks:
-                if b.type == "Text":
+                if b.type in ["Text", "List", "Title"]:
                     # Chunk text and create new blocks, and process for each block
                     # Returns list even if unchanged
                     chunks = self.chunk_text(b.text)
