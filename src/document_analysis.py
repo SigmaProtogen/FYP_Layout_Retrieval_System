@@ -20,7 +20,7 @@ device = 'gpu' if torch.cuda.is_available() else 'cpu'
 class DocumentAnalysis():
     def __init__(self, embedding_model = "openai/clip-vit-base-patch32", cross_encoder_model = "cross-encoder/ms-marco-MiniLM-L6-v2", vector_dir = "./data/.vectorstore/", read_from_existing=False):
          # Layout detection
-        self.model = lp.Detectron2LayoutModel('lp://PubLayNet/faster_rcnn_R_50_FPN_3x/config', 
+        self.model = lp.Detectron2LayoutModel('lp://PubLayNet/mask_rcnn_R_50_FPN_3x/config', 
                                  extra_config=["MODEL.ROI_HEADS.SCORE_THRESH_TEST", 0.8],
                                  label_map={0: "Text", 1: "Title", 2: "List", 3:"Table", 4:"Figure"},
                                  device=device)
@@ -49,13 +49,13 @@ class DocumentAnalysis():
     # Returns list of page images in cv2 format
     def read_from_path(self, filepath):
         doc = pymupdf.open(filepath)
-        return [self.pixmap_to_cv2(page.get_pixmap(dpi=300)) for page in doc]
+        return [self.pixmap_to_cv2(page.get_pixmap(dpi=200)) for page in doc]
 
     # Function to read pdf from bytestream
     # To be used with Panel's FileInput
     def read_from_bytes(self, pdf_bytes):
         doc = pymupdf.open(stream=pdf_bytes, filetype="pdf")
-        return [self.pixmap_to_cv2(page.get_pixmap(dpi=300)) for page in doc]
+        return [self.pixmap_to_cv2(page.get_pixmap(dpi=250)) for page in doc]
 
     # Convert PyMuPDF pixmap to cv2
     def pixmap_to_cv2(self, pixmap):
@@ -143,7 +143,7 @@ class DocumentAnalysis():
     # Function to encode both image and text simultaneously
     def encode_multimodal(self, image, text=None):
         # If no text detected, format to empty list
-        if text is None or len(text)==0: text=[]
+        # if text is None or len(text)==0: text=[]
         inputs = self.clip_processor(images=image, text=[text], return_tensors='pt')
         # Get image embeddings
         inputs_image = {'pixel_values': inputs['pixel_values']}

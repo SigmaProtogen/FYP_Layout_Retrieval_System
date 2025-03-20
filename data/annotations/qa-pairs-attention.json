@@ -1,0 +1,262 @@
+[
+    {
+        "question": "What is the main contribution of the Transformer model?",
+        "answer": {
+            "value": "The Transformer model replaces recurrence and convolutions entirely with self-attention mechanisms, allowing for more parallelization and faster training.",
+            "page": 1,
+            "bbox": [
+                335.93,
+                1911.55,
+                442.42,
+                60.09
+            ]
+        }
+    },
+    {
+        "question": "What task was mainly used to evaluate the Transformer model?",
+        "answer": {
+            "value": "The Transformer model was evaluated on WMT 2014 English-to-German and English-to-French translation tasks, as well as English constituency parsing.",
+            "page": 1,
+            "bbox": [
+                335.93,
+                1911.55,
+                442.42,
+                60.09
+            ]
+        }
+    },
+    {
+        "question": "What tasks has the self-attention mechanism demonstrated success in?",
+        "answer": {
+            "value": "Self-attention has been used successfully in a variety of tasks including reading comprehension, abstractive summarization, textual entailment and learning task-independent sentence representations.",
+            "page": 2,
+            "bbox": [
+                300.4,
+                1367.6,
+                1105.04,
+                122.16
+            ]
+        }
+    },
+    {
+        "question": "How are encoders used in the Transformer architecture?",
+        "answer": {
+            "value": "The Transformer consists of an encoder-decoder structure, with multi-head self-attention, position-wise feed-forward networks, and residual connections with layer normalization.",
+            "page": 3,
+            "bbox": [
+                297.36,
+                1394.79,
+                1107.49,
+                212.2
+            ]
+        }
+    },
+    {
+        "question": "How many layers does the Transformer decoder have?",
+        "answer": {
+            "value": "The decoder has a stack of N = 6 layers.",
+            "page": 3,
+            "bbox": [
+                299.59,
+                1643.65,
+                1105.63,
+                210.33
+            ]
+        }
+    },
+    {
+        "question": "How is scaled dot-product attention computed in the Transformer?",
+        "answer": {
+            "value": "Attention is computed as a weighted sum of values, where the weights are derived from scaled dot-product similarity between queries and keys.",
+            "page": 4,
+            "bbox": [
+                300.21,
+                1162.78,
+                1102.84,
+                88.41
+            ]
+        }
+    },
+    {
+        "question": "What is the purpose of the scaling factor in scaled dot-product attention?",
+        "answer": {
+            "value": "The scaling factor of 1/sqrt(d_k) prevents dot products from growing too large, which would push the softmax function into regions with very small gradients.",
+            "page": 4,
+            "bbox": [
+                295.09,
+                1588.87,
+                1109.04,
+                131.84
+            ]
+        }
+    },
+    {
+        "question": "Why does leftward information flow need to be prevented in the decoder layer?",
+        "answer": {
+            "value": "Leftward information flow must be prevented in order to preserve the auto-regressive property of the Transformer.",
+            "page": 5,
+            "bbox": [
+                369.95,
+                886.13,
+                1031.92,
+                451.19
+            ]
+        }
+    },
+    {
+        "question": "How many parallel attention layers (heads) are used in the Transformer?",
+        "answer": {
+            "value": "The Transformer model employs 8 attention heads.",
+            "page": 5,
+            "bbox": [
+                299.4,
+                651.01,
+                1103.77,
+                89.34
+            ]
+        }
+    },
+    {
+        "question": "How does the Transformer convert input tokens to embeddings?",
+        "answer": {
+            "value": "The Transformer uses encoder-decoder attention, encoder self-attention, and decoder self-attention.",
+            "page": 5,
+            "bbox": [
+                299.22,
+                1858.27,
+                1107.49,
+                152.62
+            ]
+        }
+    },
+    {
+        "question": "How does the computational complexity of a self-attention layer compare to recurrent and convolutional layers?",
+        "answer": {
+            "value": "The path length between long-range dependencies in the network is constant for self-attention, but linear for recurrent and convolutional layers.",
+            "page": 6,
+            "bbox": [
+                298.84,
+                1917.0,
+                1107.49,
+                94.45
+            ]
+        }
+    },
+    {
+        "question": "Why is sinusoidal positional encoding preferred over learned positional encoding?",
+        "answer": {
+            "value": "The Transformer uses sinusoidal positional encodings, where different frequencies represent token positions in the sequence.",
+            "page": 6,
+            "bbox": [
+                297.13,
+                1212.46,
+                1105.63,
+                120.61
+            ]
+        }
+    },
+    {
+        "question": "Can self-attention make the model's performance more interpretable?",
+        "answer": {
+            "value": "Yes, individual attention heads were shown to clearly learn to perform different tasks, and exhibit behaviour related to the syntactic and semantic structure of sentences.",
+            "page": 7,
+            "bbox": [
+                297.78,
+                661.07,
+                1103.75,
+                116.48
+            ]
+        }
+    },
+    {
+        "question": "Why is self-attention preferred over convolutional or recurrent layers?",
+        "answer": {
+            "value": "Self-attention reduces the number of sequential operations required and allows direct access to information across long sequences.",
+            "page": 6,
+            "bbox": [
+                298.84,
+                1917.0,
+                1107.49,
+                94.45
+            ]
+        }
+    },
+    {
+        "question": "How were sentences encoded in the English-German dataset?",
+        "answer": {
+            "value": "Sentences in the WMT 2014 English-German dataset were encoded using byte-pair encoding.",
+            "page": 7,
+            "bbox": [
+                299.25,
+                1036.5,
+                1105.75,
+                208.55
+            ]
+        }
+    },
+    {
+        "question": "How is Dropout implemented in the Transformer architecture?",
+        "answer": {
+            "value": "Dropout is applied to the output of each sub-layer before it is added to the sub-layer input and normalized.",
+            "page": 8,
+            "bbox": [
+                298.34,
+                759.84,
+                1104.85,
+                120.36
+            ]
+        }
+    },
+    {
+        "question": "How long did it take to train the initial Transformer model?",
+        "answer": {
+            "value": "The base model was trained for 12 hours, while the big model was trained for 3.5 days on 8 NVIDIA P100 GPUs.",
+            "page": 7,
+            "bbox": [
+                298.5,
+                1349.39,
+                1103.56,
+                154.21
+            ]
+        }
+    },
+    {
+        "question": "What BLEU score did the Transformer (big) model achieve on the English-to-French and English-to-German translation tasks respectively?",
+        "answer": {
+            "value": "The Transformer achieves state-of-the-art BLEU scores on WMT 2014 English-to-German (28.4) and English-to-French (41.8) while requiring significantly less training time.",
+            "page": 8,
+            "bbox": [
+                362.12,
+                260.84,
+                976.68,
+                418.37
+            ]
+        }
+    },
+    {
+        "question": "What other task was performed on the Transformer to test it's generalizability?",
+        "answer": {
+            "value": "The English constituency parsing task was performed on the Transformer to evaluate if it can generalize to other tasks.",
+            "page": 9,
+            "bbox": [
+                298.74,
+                1613.7,
+                1101.96,
+                120.52
+            ]
+        }
+    },
+    {
+        "question": "What future improvements and research were suggested for the Transformer and the attention mechanism?",
+        "answer": {
+            "value": "The authors suggested extending the Transformer to handle modalities beyond text and exploring local attention mechanisms for larger inputs like images, audio, and video.",
+            "page": 10,
+            "bbox": [
+                300.44,
+                1323.99,
+                1104.55,
+                118.41
+            ]
+        }
+    }
+]

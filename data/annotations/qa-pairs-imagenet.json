@@ -1,0 +1,262 @@
+[
+    {
+        "question": "What are the overall architectural components of the convolutional neural network used in the ImageNet competition?",
+        "answer": {
+            "value": "The network consists of five convolutional layers, some followed by max-pooling layers, and three fully connected layers with a final 1000-way softmax.",
+            "page": 4,
+            "bbox": [
+                299.5,
+                1469.87,
+                1100.03,
+                178.33
+            ]
+        }
+    },
+    {
+        "question": "What is the most common method used to reduce overfitting for training a CNN?",
+        "answer": {
+            "value": "The network employs dropout in fully connected layers and data augmentation techniques such as image translations, reflections, and principal component analysis-based intensity alterations.",
+            "page": 5,
+            "bbox": [
+                299.5,
+                1367.39,
+                1100.42,
+                207.11
+            ]
+        }
+    },
+    {
+        "question": "What optimization algorithm was used to train the CNN, and what were its key hyperparameters?",
+        "answer": {
+            "value": "The model was trained using stochastic gradient descent (SGD) with a batch size of 128, momentum of 0.9, and weight decay of 0.0005.",
+            "page": 6,
+            "bbox": [
+                299.74,
+                1293.37,
+                640.44,
+                209.64
+            ]
+        }
+    },
+    {
+        "question": "How did the authors handle images of varying resolutions in ImageNet?",
+        "answer": {
+            "value": "All images were downsampled such that the shorter side was resized to 256 pixels, followed by cropping a 256x256 patch from the center.",
+            "page": 2,
+            "bbox": [
+                300.31,
+                1463.8,
+                1099.79,
+                177.2
+            ]
+        }
+    },
+    {
+        "question": "What is the role of the Rectified Linear Unit (ReLU) in training deep CNNs?",
+        "answer": {
+            "value": "ReLU accelerates training by avoiding saturating nonlinearities and allows deep networks to train faster than those using tanh or sigmoid activations.",
+            "page": 3,
+            "bbox": [
+                300.56,
+                835.97,
+                599.05,
+                331.76
+            ]
+        }
+    },
+    {
+        "question": "Why did the authors use two GPUs for training, and how was the workload distributed?",
+        "answer": {
+            "value": "One GPU processed half of the convolutional layers, while the other processed the remaining layers, reducing training time and memory constraints.",
+            "page": 3,
+            "bbox": [
+                299.7,
+                1303.3,
+                1101.98,
+                330.02
+            ]
+        }
+    },
+    {
+        "question": "What is the purpose of local response normalization (LRN) in this model?",
+        "answer": {
+            "value": "LRN implements a form of lateral inhibition to encourage competition among neurons, improving generalization.",
+            "page": 4,
+            "bbox": [
+                300.1,
+                594.54,
+                1100.41,
+                208.56
+            ]
+        }
+    },
+    {
+        "question": "How did overlapping pooling contribute to the model’s performance?",
+        "answer": {
+            "value": "Overlapping pooling reduced overfitting by increasing feature generalization while slightly lowering the top-1 and top-5 error rates.",
+            "page": 4,
+            "bbox": [
+                299.4,
+                1070.3,
+                1100.7,
+                299.14
+            ]
+        }
+    },
+    {
+        "question": "How did the authors use image translation to increase the size of the training set?",
+        "answer": {
+            "value": "Random patches of 224x224 pixels (with data augmentation applied) were extracted from 256x256 images, increasing the size of the training set by a factor of 2048.",
+            "page": 5,
+            "bbox": [
+                299.7,
+                1596.5,
+                1100.7,
+                269.9
+            ]
+        }
+    },
+    {
+        "question": "Why does dropout help prevent overfitting in fully connected layers?",
+        "answer": {
+            "value": "Dropout forces neurons to rely on multiple independent features, preventing complex co-adaptations and improving generalization.",
+            "page": 6,
+            "bbox": [
+                300.2,
+                677.38,
+                1099.9,
+                391.56
+            ]
+        }
+    },
+    {
+        "question": "How long did it take to train the network, and what hardware was used?",
+        "answer": {
+            "value": "Training took five to six days on two NVIDIA GTX 580 3GB GPUs.",
+            "page": 7,
+            "bbox": [
+                299.58,
+                235.1,
+                1101.5,
+                56.18
+            ]
+        }
+    },
+    {
+        "question": "What performance did the CNN achieve on the ILSVRC-2010 test set?",
+        "answer": {
+            "value": "The model achieved top-1 and top-5 error rates of 37.5% and 17.0%, respectively.",
+            "page": 7,
+            "bbox": [
+                299.7,
+                427.2,
+                1099.05,
+                177.79
+            ]
+        }
+    },
+    {
+        "question": "What does Sparse Coding achieve on the ILSVRC-2010 test set for Top-1 and Top-5 performance?",
+        "answer": {
+            "value": "47.1% and 28.2%",
+            "page": 7,
+            "bbox": [
+                695.2,
+                1195.68,
+                701.0,
+                196.32
+            ]
+        }
+    },
+    {
+        "question": "How did the authors visualize what the CNN learned?",
+        "answer": {
+            "value": "They displayed the first-layer convolutional kernels, showing frequency- and color-selective filters.",
+            "page": 8,
+            "bbox": [
+                299.82,
+                903.3,
+                1099.87,
+                148.77
+            ]
+        }
+    },
+    {
+        "question": "What effect did depth have on network performance?",
+        "answer": {
+            "value": "Removing any convolutional layer significantly degraded performance, showing that depth is crucial.",
+            "page": 8,
+            "bbox": [
+                300.38,
+                1626.09,
+                1099.06,
+                147.71
+            ]
+        }
+    },
+    {
+        "question": "How did the CNN generalize similarity between images?",
+        "answer": {
+            "value": "By computing feature vectors at the last hidden layer and using Euclidean distance for similarity search.",
+            "page": 7,
+            "bbox": [
+                300.28,
+                1072.2,
+                1099.06,
+                239.5
+            ]
+        }
+    },
+    {
+        "question": "What future improvements did the authors suggest?",
+        "answer": {
+            "value": "They proposed training even larger CNNs on video sequences to leverage temporal information.",
+            "page": 7,
+            "bbox": [
+                300.39,
+                1794.38,
+                1099.06,
+                239.35
+            ]
+        }
+    },
+    {
+        "question": "What are the main advantages of convolutional networks over traditional feedforward networks?",
+        "answer": {
+            "value": "CNNs require fewer connections and parameters due to weight sharing and spatial locality assumptions, making them easier to train.",
+            "page": 1,
+            "bbox": [
+                299.2,
+                1732.67,
+                1101.02,
+                300.9
+            ]
+        }
+    },
+    {
+        "question": "How did the authors compare feature activations between images?",
+        "answer": {
+            "value": "They measured Euclidean distances between high-dimensional feature vectors from the last hidden layer.",
+            "page": 7,
+            "bbox": [
+                300.56,
+                1332.3,
+                1099.64,
+                147.1
+            ]
+        }
+    },
+    {
+        "question": "Why do CNNs require large datasets like ImageNet for training?",
+        "answer": {
+            "value": "CNNs have high learning capacity and require large amounts of labeled data to generalize well without overfitting.",
+            "page": 1,
+            "bbox": [
+                299.2,
+                1732.67,
+                1101.02,
+                300.9
+            ]
+        }
+    }
+]

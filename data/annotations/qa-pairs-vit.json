@@ -1,0 +1,262 @@
+[
+    {
+        "question": "How do the authors apply the Transformer architecture to image recognition?",
+        "answer": {
+            "value": "The authors aim to apply a pure Transformer model directly to sequences of image patches, avoiding reliance on CNNs, and demonstrate that it can perform competitively on image classification tasks.",
+            "page": 1,
+            "bbox": [
+                300.28,
+                1687.75,
+                1100.58,
+                147.45
+            ]
+        }
+    },
+    {
+        "question": "How does Vision Transformer (ViT) handle images differently from CNNs?",
+        "answer": {
+            "value": "ViT divides an image into patches, linearly embeds them, adds position embeddings, and processes them through a Transformer encoder, unlike CNNs which rely on convolutional filters.",
+            "page": 3,
+            "bbox": [
+                300.2,
+                1371.1,
+                1099.6,
+                247.4
+            ]
+        }
+    },
+    {
+        "question": "What are the main datasets used for training and evaluation in the ViT paper?",
+        "answer": {
+            "value": "The authors use ImageNet, ImageNet-21k, and JFT-300M for training, and evaluate on datasets like CIFAR-10, CIFAR-100, and VTAB.",
+            "page": 4,
+            "bbox": [
+                299.9,
+                1763.1,
+                1100.6,
+                268.0
+            ]
+        }
+    },
+    {
+        "question": "Why do the authors prefer to keep the setup as simple as possible?",
+        "answer": {
+            "value": "Transformers are observed to be scalable and efficient, and can be used almost out of the box.",
+            "page": 3,
+            "bbox": [
+                300.16,
+                1102.29,
+                1099.79,
+                87.31
+            ]
+        }
+    },
+    {
+        "question": "How does the patch embedding process work in ViT?",
+        "answer": {
+            "value": "Each image is split into non-overlapping patches, which are flattened and projected to a fixed-dimensional embedding using a linear layer.",
+            "page": 3,
+            "bbox": [
+                300.2,
+                1371.1,
+                1099.6,
+                247.4
+            ]
+        }
+    },
+    {
+        "question": "What role does the class token play in ViT?",
+        "answer": {
+            "value": "A learnable class token is prepended to the sequence of patch embeddings, and its final state after Transformer processing is used for classification.",
+            "page": 3,
+            "bbox": [
+                299.24,
+                1639.91,
+                1100.32,
+                147.49
+            ]
+        }
+    },
+    {
+        "question": "How do the authors handle positional information in Vision Transformers?",
+        "answer": {
+            "value": "They use learnable 1D position embeddings, added to the patch embeddings, to retain spatial relationships.",
+            "page": 3,
+            "bbox": [
+                300.2,
+                1371.1,
+                1099.6,
+                247.4
+            ]
+        }
+    },
+    {
+        "question": "What optimization techniques were used to train and fine-tune ViT models?",
+        "answer": {
+            "value": "The models were trained using the Adam optimizer with weight decay, linear learning rate warmup, and learning rate decay.",
+            "page": 5,
+            "bbox": [
+                300.43,
+                1083.0,
+                1098.23,
+                239.0
+            ]
+        }
+    },
+    {
+        "question": "What is the impact of pre-training dataset size on ViT performance?",
+        "answer": {
+            "value": "Larger datasets like JFT-300M significantly improve performance, helping overcome the lack of inductive biases in Transformers.",
+            "page": 6,
+            "bbox": [
+                299.9,
+                1633.31,
+                1101.5,
+                86.89
+            ]
+        }
+    },
+    {
+        "question": "How does ViT compare to ResNets in terms of computational efficiency?",
+        "answer": {
+            "value": "ViT achieves state-of-the-art accuracy with significantly lower computational cost compared to large ResNets.",
+            "page": 6,
+            "bbox": [
+                299.16,
+                1595.4,
+                1100.76,
+                327.3
+            ]
+        }
+    },
+    {
+        "question": "Where was the research conducted?",
+        "answer": {
+            "value": "The work was performed in Berlin, Zurich and Amsterdam.",
+            "page": 9,
+            "bbox": [
+                299.46,
+                1677.86,
+                1099.84,
+                145.44
+            ]
+        }
+    },
+    {
+        "question": "What advantage does self-attention provide in the Vision Transformer?",
+        "answer": {
+            "value": "Self-attention enables ViT to integrate information globally across the image, rather than relying on local receptive fields like CNNs.",
+            "page": 8,
+            "bbox": [
+                299.34,
+                1479.2,
+                742.56,
+                179.0
+            ]
+        }
+    },
+    {
+        "question": "How does hybrid ViT differ from the pure Transformer model?",
+        "answer": {
+            "value": "Hybrid ViT integrates CNN feature maps before feeding them into the Transformer, benefiting from CNN feature extraction.",
+            "page": 4,
+            "bbox": [
+                300.2,
+                789.7,
+                1098.8,
+                177.7
+            ]
+        }
+    },
+    {
+        "question": "What are the major findings of the ViT scaling study?",
+        "answer": {
+            "value": "ViT scales better with increasing model and dataset size, outperforming CNNs when trained on sufficiently large datasets.",
+            "page": 8,
+            "bbox": [
+                300.17,
+                584.67,
+                1099.32,
+                238.64
+            ]
+        }
+    },
+    {
+        "question": "How does the attention mechanism in ViT differ from convolutions?",
+        "answer": {
+            "value": "Unlike convolutions that focus on local receptive fields, attention layers in ViT can learn relationships between distant patches.",
+            "page": 8,
+            "bbox": [
+                299.69,
+                1663.71,
+                1100.25,
+                207.79
+            ]
+        }
+    },
+    {
+        "question": "How does the self-supervised training experiment influence ViT performance?",
+        "answer": {
+            "value": "Self-supervised training improves ViT's accuracy by 2% but remains 4% behind supervised pre-training.",
+            "page": 9,
+            "bbox": [
+                297.4,
+                855.68,
+                1102.7,
+                177.81
+            ]
+        }
+    },
+    {
+        "question": "How does the receptive field of ViT change across layers?",
+        "answer": {
+            "value": "Lower layers in ViT have localized attention, while deeper layers gradually expand their receptive fields to process the entire image.",
+            "page": 20,
+            "bbox": [
+                300.1,
+                1095.95,
+                1099.46,
+                177.16
+            ]
+        }
+    },
+    {
+        "question": "What results did ViT-H/14 achieve on the ImageNet benchmark?",
+        "answer": {
+            "value": "ViT achieved 88.55% top-1 accuracy on ImageNet when pre-trained on JFT-300M.",
+            "page": 6,
+            "bbox": [
+                305.84,
+                226.97,
+                1088.22,
+                320.01
+            ]
+        }
+    },
+    {
+        "question": "Why is it not recommended to apply self attention directly to images?",
+        "answer": {
+            "value": "The number of pixels scale quadratically, and does not scale well to realistic input sizes.",
+            "page": 2,
+            "bbox": [
+                299.11,
+                904.61,
+                1100.58,
+                361.39
+            ]
+        }
+    },
+    {
+        "question": "What future improvements do the authors suggest for Vision Transformers?",
+        "answer": {
+            "value": "Future work could explore scaling ViT further, improving self-supervised learning, and applying ViT to detection and segmentation tasks.",
+            "page": 9,
+            "bbox": [
+                299.81,
+                1381.93,
+                1100.19,
+                177.37
+            ]
+        }
+    }
+]
