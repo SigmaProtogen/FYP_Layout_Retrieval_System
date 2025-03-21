@@ -83,10 +83,10 @@
             "value": "ReLUs do not require input normalization to prevent values from saturating.",
             "page": 4,
             "bbox": [
-                300.1,
-                594.54,
-                1100.41,
-                208.56
+                299.6,
+                292.37,
+                1100.42,
+                184.64
             ]
         }
     },
