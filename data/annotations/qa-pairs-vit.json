@@ -52,7 +52,7 @@
         }
     },
     {
-        "question": "How does the patch embedding process work in ViT?",
+        "question": "How is an image's patch embeddings calculated?",
         "answer": {
             "value": "Each image is split into non-overlapping patches, which are flattened and projected to a fixed-dimensional embedding using a linear layer.",
             "page": 3,
@@ -78,15 +78,15 @@
         }
     },
     {
-        "question": "How is positional information encoded in the model?",
+        "question": "How does the model encode positional information?",
         "answer": {
             "value": "They use learnable 1D position embeddings, added to the patch embeddings, to retain spatial relationships.",
             "page": 3,
             "bbox": [
-                300.2,
-                1371.1,
-                1099.6,
-                247.4
+                299.5,
+                1808.1,
+                1100.0,
+                117.61
             ]
         }
     },
@@ -120,12 +120,12 @@
         "question": "How does ViT compare to ResNets in terms of computational efficiency?",
         "answer": {
             "value": "ViT achieves state-of-the-art accuracy with significantly lower computational cost compared to large ResNets.",
-            "page": 6,
+            "page": 8,
             "bbox": [
-                299.16,
-                1595.4,
-                1100.76,
-                327.3
+                300.17,
+                584.67,
+                1099.32,
+                238.64
             ]
         }
     },
@@ -156,7 +156,7 @@
         }
     },
     {
-        "question": "How does hybrid ViT differ from the pure Transformer model?",
+        "question": "What function does the hybrid ViT architecture implement differently?",
         "answer": {
             "value": "Hybrid ViT integrates CNN feature maps before feeding them into the Transformer, benefiting from CNN feature extraction.",
             "page": 4,
@@ -247,7 +247,7 @@
         }
     },
     {
-        "question": "What future improvements do the authors suggest for Vision Transformers?",
+        "question": "What future areas of research do the authors suggest?",
         "answer": {
             "value": "Future work could explore scaling ViT further, improving self-supervised learning, and applying ViT to detection and segmentation tasks.",
             "page": 9,

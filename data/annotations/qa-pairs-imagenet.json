@@ -16,12 +16,12 @@
         "question": "Where is Dropout used in the architecture?",
         "answer": {
             "value": "Dropout is applied in the first two fully connected layers of the architecture.",
-            "page": 5,
+            "page": 6,
             "bbox": [
-                321.52,
-                799.23,
-                1051.88,
-                225.77
+                299.3,
+                1089.6,
+                1099.01,
+                56.1
             ]
         }
     },
@@ -234,15 +234,15 @@
         }
     },
     {
-        "question": "How did the authors compare feature activations between images?",
+        "question": "How were the model weights initialized before training?",
         "answer": {
-            "value": "They measured Euclidean distances between high-dimensional feature vectors from the last hidden layer.",
-            "page": 7,
+            "value": "Weights were initialized from a zero-mean Gaussian distribution with standard deviation 0.01",
+            "page": 6,
             "bbox": [
-                300.56,
-                1332.3,
-                1099.64,
-                147.1
+                300.1,
+                1777.2,
+                1100.9,
+                149.0
             ]
         }
     },
