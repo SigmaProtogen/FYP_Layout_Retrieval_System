@@ -3,25 +3,12 @@
         "question": "What is the main contribution of the Transformer model?",
         "answer": {
             "value": "The Transformer model replaces recurrence and convolutions entirely with self-attention mechanisms, allowing for more parallelization and faster training.",
-            "page": 1,
+            "page": 2,
             "bbox": [
-                335.93,
-                1911.55,
-                442.42,
-                60.09
-            ]
-        }
-    },
-    {
-        "question": "What task was mainly used to evaluate the Transformer model?",
-        "answer": {
-            "value": "The Transformer model was evaluated on WMT 2014 English-to-German and English-to-French translation tasks, as well as English constituency parsing.",
-            "page": 1,
-            "bbox": [
-                335.93,
-                1911.55,
-                442.42,
-                60.09
+                297.95,
+                1608.88,
+                1109.35,
+                120.99
             ]
         }
     },
@@ -70,10 +57,10 @@
             "value": "Attention is computed as a weighted sum of values, where the weights are derived from scaled dot-product similarity between queries and keys.",
             "page": 4,
             "bbox": [
-                300.21,
-                1162.78,
-                1102.84,
-                88.41
+                297.11,
+                1027.83,
+                1104.39,
+                117.89
             ]
         }
     },
@@ -156,6 +143,19 @@
         }
     },
     {
+        "question": "Why is self-attention preferred over convolutional or recurrent layers?",
+        "answer": {
+            "value": "Self-attention reduces the number of sequential operations required and allows direct access to information across long sequences.",
+            "page": 6,
+            "bbox": [
+                298.84,
+                1917.0,
+                1107.49,
+                94.45
+            ]
+        }
+    },
+    {
         "question": "Can self-attention make the model's performance more interpretable?",
         "answer": {
             "value": "Yes, individual attention heads were shown to clearly learn to perform different tasks, and exhibit behaviour related to the syntactic and semantic structure of sentences.",
@@ -169,15 +169,15 @@
         }
     },
     {
-        "question": "Why is self-attention preferred over convolutional or recurrent layers?",
+        "question": "What optimizer was used to train the Transformer model?",
         "answer": {
-            "value": "Self-attention reduces the number of sequential operations required and allows direct access to information across long sequences.",
-            "page": 6,
+            "value": "The Adam optimizer was used during training.",
+            "page": 7,
             "bbox": [
-                298.84,
-                1917.0,
-                1107.49,
-                94.45
+                296.96,
+                1605.6,
+                1104.85,
+                56.43
             ]
         }
     },
@@ -195,7 +195,7 @@
         }
     },
     {
-        "question": "How is Dropout implemented in the Transformer architecture?",
+        "question": "How is residual dropout used in the Transformer architecture?",
         "answer": {
             "value": "Dropout is applied to the output of each sub-layer before it is added to the sub-layer input and normalized.",
             "page": 8,
@@ -208,7 +208,7 @@
         }
     },
     {
-        "question": "How long did it take to train the initial Transformer model?",
+        "question": "How long did the base model and big model train for?",
         "answer": {
             "value": "The base model was trained for 12 hours, while the big model was trained for 3.5 days on 8 NVIDIA P100 GPUs.",
             "page": 7,
@@ -247,7 +247,7 @@
         }
     },
     {
-        "question": "What future improvements and research were suggested for the Transformer and the attention mechanism?",
+        "question": "What future improvements and research did the authors suggest?",
         "answer": {
             "value": "The authors suggested extending the Transformer to handle modalities beyond text and exploring local attention mechanisms for larger inputs like images, audio, and video.",
             "page": 10,

@@ -13,20 +13,20 @@
         }
     },
     {
-        "question": "How does Vision Transformer (ViT) handle images differently from CNNs?",
+        "question": "Compared to NLP, how was attention applied for vision tasks?",
         "answer": {
-            "value": "ViT divides an image into patches, linearly embeds them, adds position embeddings, and processes them through a Transformer encoder, unlike CNNs which rely on convolutional filters.",
-            "page": 3,
+            "value": "Attention was either applied in conjunction with convolutional neural networks or to replace certain components of them.",
+            "page": 1,
             "bbox": [
-                300.2,
-                1371.1,
-                1099.6,
-                247.4
+                393.93,
+                375.5,
+                959.95,
+                108.0
             ]
         }
     },
     {
-        "question": "What are the main datasets used for training and evaluation in the ViT paper?",
+        "question": "What datasets were used to train and benchmark the model?",
         "answer": {
             "value": "The authors use ImageNet, ImageNet-21k, and JFT-300M for training, and evaluate on datasets like CIFAR-10, CIFAR-100, and VTAB.",
             "page": 4,
@@ -39,7 +39,7 @@
         }
     },
     {
-        "question": "Why do the authors prefer to keep the setup as simple as possible?",
+        "question": "Why do the authors intentionally keep the setup to be simple?",
         "answer": {
             "value": "Transformers are observed to be scalable and efficient, and can be used almost out of the box.",
             "page": 3,
@@ -65,7 +65,7 @@
         }
     },
     {
-        "question": "What role does the class token play in ViT?",
+        "question": "How is the class token used in the embeddings?",
         "answer": {
             "value": "A learnable class token is prepended to the sequence of patch embeddings, and its final state after Transformer processing is used for classification.",
             "page": 3,
@@ -78,7 +78,7 @@
         }
     },
     {
-        "question": "How do the authors handle positional information in Vision Transformers?",
+        "question": "How is positional information encoded in the model?",
         "answer": {
             "value": "They use learnable 1D position embeddings, added to the patch embeddings, to retain spatial relationships.",
             "page": 3,
@@ -91,7 +91,7 @@
         }
     },
     {
-        "question": "What optimization techniques were used to train and fine-tune ViT models?",
+        "question": "What parameters were used to train and fine-tune ViT models?",
         "answer": {
             "value": "The models were trained using the Adam optimizer with weight decay, linear learning rate warmup, and learning rate decay.",
             "page": 5,
@@ -104,7 +104,7 @@
         }
     },
     {
-        "question": "What is the impact of pre-training dataset size on ViT performance?",
+        "question": "What is the impact of pre-training dataset size on model performance?",
         "answer": {
             "value": "Larger datasets like JFT-300M significantly improve performance, helping overcome the lack of inductive biases in Transformers.",
             "page": 6,

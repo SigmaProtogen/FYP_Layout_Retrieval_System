@@ -8,17 +8,19 @@ from tqdm import tqdm
 
 import faiss
 import torch
-from transformers import CLIPProcessor, CLIPModel, CLIPConfig, CLIPTokenizer, AutoTokenizer, AutoModelForSequenceClassification
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from langchain_text_splitters import RecursiveCharacterTextSplitter, NLTKTextSplitter
+import voyageai
 
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
+os.environ["VOYAGE_API_KEY"] = "pa-t-QdSeBOYxYQ83TObGLxkR4iqMZpYylSWOLBmthFUG7"
 
 device = 'gpu' if torch.cuda.is_available() else 'cpu'
 
 # Unified class for processing, analyzing and storing a document
 class DocumentAnalysis():
-    def __init__(self, embedding_model = "openai/clip-vit-base-patch32", cross_encoder_model = "cross-encoder/ms-marco-MiniLM-L6-v2", vector_dir = "./data/.vectorstore/", read_from_existing=False):
+    def __init__(self, embedding_model = "voyageai/voyage-multimodal-3", cross_encoder_model = "cross-encoder/ms-marco-MiniLM-L6-v2", vector_dir = "./data/.vectorstore/"):
          # Layout detection
         self.model = lp.Detectron2LayoutModel('lp://PubLayNet/mask_rcnn_R_50_FPN_3x/config', 
                                  extra_config=["MODEL.ROI_HEADS.SCORE_THRESH_TEST", 0.8],
@@ -27,23 +29,19 @@ class DocumentAnalysis():
         self.ocr_agent = lp.TesseractAgent(languages='eng') 
 
         # Dual encoders for embeddings
-        self.clip_model = CLIPModel.from_pretrained(embedding_model, device_map=device)
-        self.clip_processor = CLIPProcessor.from_pretrained(embedding_model)
-        self.tokenizer = CLIPTokenizer.from_pretrained(embedding_model)
-        self.text_splitter = RecursiveCharacterTextSplitter.from_huggingface_tokenizer(self.tokenizer, chunk_size=77, chunk_overlap=5)
+        self.embedding_tokenizer = AutoTokenizer.from_pretrained(embedding_model)
+        self.text_splitter = NLTKTextSplitter.from_huggingface_tokenizer(self.embedding_tokenizer, chunk_size=256, chunk_overlap = 10)
+        self.vo_embeddings = voyageai.Client()
 
         # Cross encoder for retrieval-reranking
         self.cross_encoder_tokenizer = AutoTokenizer.from_pretrained(cross_encoder_model)
         self.cross_encoder = AutoModelForSequenceClassification.from_pretrained(cross_encoder_model).to(device)       
 
         # Vectorstore variables
-        self.dimension = 512  # CLIP's embedding size
+        self.dimension = 1024  # Voyage's embedding size
         self.faiss_index = faiss.IndexFlatL2(self.dimension) # FAISS Vector store
         self.metadata_store = {}  # Store mapping of IDs and document page number to content
         self.vector_dir = vector_dir # Directory to write data to
-
-        # Read from existing vector store and metadata if specified
-        if read_from_existing: self.faiss_read
 
     # Read a PDF document using PyMuPDF
     # Returns list of page images in cv2 format
@@ -121,55 +119,42 @@ class DocumentAnalysis():
         return self.ocr_agent.detect(segment_image)
 
     # Vectorstore functions
-    # Function to chunk text to CLIP max length
+    # Function to chunk text to set length
     def chunk_text(self, text):
         chunks = self.text_splitter.split_text(text)
         return chunks
 
-    # Function to encode text
-    def encode_text(self, text):
-        inputs = self.clip_processor(text=[text], return_tensors="pt")
-        with torch.no_grad():
-            embedding = self.clip_model.get_text_features(**inputs).numpy()
-        return embedding / np.linalg.norm(embedding)  # Normalize
-
-    # Function to encode image
-    def encode_image(self, image):
-        inputs = self.clip_processor(images=image, return_tensors="pt")
-        with torch.no_grad():
-            embedding = self.clip_model.get_image_features(**inputs).numpy()
-        return embedding / np.linalg.norm(embedding)  # Normalize
-
-    # Function to encode both image and text simultaneously
-    def encode_multimodal(self, image, text=None):
-        # If no text detected, format to empty list
-        # if text is None or len(text)==0: text=[]
-        inputs = self.clip_processor(images=image, text=[text], return_tensors='pt')
-        # Get image embeddings
-        inputs_image = {'pixel_values': inputs['pixel_values']}
-        with torch.no_grad():
-            embedding = self.clip_model.get_image_features(**inputs_image).numpy()
-        return embedding / np.linalg.norm(embedding)  # Normalize
-        
+    # Test voyage embeddings
+    def get_voyage_embeddings(self, text, image=None):
+        # Convert image from array into PIL
+        if image is not None: image = Image.fromarray(np.uint8(image))
+        if (text is None or len(text)==0) and image is not None:
+            inputs = [[image]]
+        elif image is None:
+            inputs = [[text]]
+        else:
+            inputs = [[text, image]]
+        result = self.vo_embeddings.multimodal_embed(inputs, model="voyage-multimodal-3")
+        return np.array(result.embeddings)
 
     # Function to add item to FAISS
     # Specify content, type, page and bounding box from blocks
-    def add_to_faiss(self, embedding, content, content_type, page_idx, bbox):
+    def add_to_faiss(self, embedding, content, chunk, content_type, page_idx, bbox):
         idx = len(self.metadata_store)  # Assign unique index
         self.faiss_index.add(embedding)
-        self.metadata_store[idx] = {"type": content_type, "content": content, "page": page_idx, "bbox": bbox}
+        self.metadata_store[idx] = {"type": content_type, "content": content, "chunk": chunk, "page": page_idx, "bbox": bbox}
     
     # Perform retrieval and reranking
-    def search_faiss(self, query, k=15, n=5):
-        query_embedding = self.encode_text(query)
+    def search_faiss(self, query, k=20, n=5):
+        query_embedding = self.get_voyage_embeddings(query)
         _, indices = self.faiss_index.search(query_embedding, k)
         indices = [int(i) for i in indices[0]]
         
-        # Cross encoder reranking on text modality
-        answers = [self.metadata_store[idx] for idx in indices if self.metadata_store[idx]['type']!='Figure']
-        answer_texts = [a['content'] for a in answers]
+        # Cross encoder reranking on chunk contents
+        answers = [self.metadata_store[idx] for idx in indices]
+        answer_chunks = [a['content'] for a in answers]
         queries = [query for i in range(len(answers))] # Repeat for tokenizer input
-        features = self.cross_encoder_tokenizer(queries, answer_texts,  padding=True, truncation=True, return_tensors="pt")
+        features = self.cross_encoder_tokenizer(queries, answer_chunks,  padding=True, truncation=True, return_tensors="pt")
         with torch.no_grad(): # Rerank
             scores = self.cross_encoder(**features).logits
 
@@ -182,14 +167,21 @@ class DocumentAnalysis():
 
 
     # Writes the vectorstore and metadata into a given path
-    def faiss_persist(self):
-        faiss.write_index(self.faiss_index, self.vector_dir+"faiss.index")
-        json.dump(self.metadata_store, open(self.vector_dir+"metadata.json", 'w'))
+    def faiss_persist(self, subdir = ''):
+        full_dir = self.vector_dir + subdir
+        if not os.path.exists(full_dir):
+            os.makedirs(full_dir)
+        faiss.write_index(self.faiss_index, full_dir+"faiss.index")
+        json.dump(self.metadata_store, open(full_dir+"metadata.json", 'w'))
     
     # Read from existing vector stores
-    def faiss_read(self):
-        self.faiss_index = faiss.read_index(self.vector_dir+"faiss.index")
-        self.metadata_store = json.load(open(self.vector_dir+"metadata.json", 'r'), object_hook=self._convert_keys)
+    def faiss_read(self, subdir = ''):
+        full_dir = self.vector_dir + subdir
+        if not os.path.exists(full_dir):
+            print("Directory does not exist")
+            return False
+        self.faiss_index = faiss.read_index(full_dir+"faiss.index")
+        self.metadata_store = json.load(open(full_dir+"metadata.json", 'r'), object_hook=self._convert_keys)
     
     # Convert keys from string to int when deserializing
     def _convert_keys(self, d):
@@ -203,29 +195,17 @@ class DocumentAnalysis():
 
             # Processing for each block to be vectorized
             for b in blocks:
-                if b.type in ["Text", "List", "Title"]:
-                    # Chunk text and create new blocks, and process for each block
-                    # Returns list even if unchanged
-                    chunks = self.chunk_text(b.text)
-                    for chunk in chunks:
-                        # Encode as text and add to FAISS
-                        # Embeddings use the chunks, but metadata contains original text for completion
-                        text_embs = self.encode_text(chunk)
-                        self.add_to_faiss(
-                            embedding=text_embs, 
-                            content=b.text, 
-                            content_type=b.type, 
-                            page_idx=page_idx, 
-                            bbox=b.block.coordinates
-                        )
-                else:
-                    # Multimodal for images and layout
-                    # Crop and get image embeddings
-                    segmented_image = self._crop_image(page, b, padding=20)
-                    multimodal_embs = self.encode_multimodal(segmented_image, b.text)
+                chunks = self.chunk_text(b.text) if b.text is not None else None
+                for chunk in chunks:
+                    if b.type in ['Figure', 'Table']:
+                        segmented_image = self._crop_image(page, b, padding=20)
+                        embs = self.get_voyage_embeddings(chunk, segmented_image)
+                    else:
+                        embs = self.get_voyage_embeddings(chunk)
                     self.add_to_faiss(
-                        embedding=multimodal_embs, 
+                        embedding=embs, 
                         content=b.text, 
+                        chunk=chunk, 
                         content_type=b.type, 
                         page_idx=page_idx, 
                         bbox=b.block.coordinates

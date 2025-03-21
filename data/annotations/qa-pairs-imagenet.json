@@ -1,27 +1,27 @@
 [
     {
-        "question": "What are the overall architectural components of the convolutional neural network used in the ImageNet competition?",
+        "question": "How many parameters does the convolutional neural network have?",
         "answer": {
-            "value": "The network consists of five convolutional layers, some followed by max-pooling layers, and three fully connected layers with a final 1000-way softmax.",
-            "page": 4,
+            "value": "The network consists of 60 million parameters and 650,000 neurons",
+            "page": 1,
             "bbox": [
-                299.5,
-                1469.87,
-                1100.03,
-                178.33
+                399.05,
+                772.5,
+                902.5,
+                391.98
             ]
         }
     },
     {
-        "question": "What is the most common method used to reduce overfitting for training a CNN?",
+        "question": "Where is Dropout used in the architecture?",
         "answer": {
-            "value": "The network employs dropout in fully connected layers and data augmentation techniques such as image translations, reflections, and principal component analysis-based intensity alterations.",
+            "value": "Dropout is applied in the first two fully connected layers of the architecture.",
             "page": 5,
             "bbox": [
-                299.5,
-                1367.39,
-                1100.42,
-                207.11
+                321.52,
+                799.23,
+                1051.88,
+                225.77
             ]
         }
     },
@@ -78,9 +78,9 @@
         }
     },
     {
-        "question": "What is the purpose of local response normalization (LRN) in this model?",
+        "question": "What property makes a Rectified Linear Unit (ReLU) desirable in learning?",
         "answer": {
-            "value": "LRN implements a form of lateral inhibition to encourage competition among neurons, improving generalization.",
+            "value": "ReLUs do not require input normalization to prevent values from saturating.",
             "page": 4,
             "bbox": [
                 300.1,
@@ -91,7 +91,7 @@
         }
     },
     {
-        "question": "How did overlapping pooling contribute to the model’s performance?",
+        "question": "How did overlapping pooling contribute to the model's performance?",
         "answer": {
             "value": "Overlapping pooling reduced overfitting by increasing feature generalization while slightly lowering the top-1 and top-5 error rates.",
             "page": 4,
@@ -104,7 +104,7 @@
         }
     },
     {
-        "question": "How did the authors use image translation to increase the size of the training set?",
+        "question": "How did the authors perform image augmentation to increase the size of the training set?",
         "answer": {
             "value": "Random patches of 224x224 pixels (with data augmentation applied) were extracted from 256x256 images, increasing the size of the training set by a factor of 2048.",
             "page": 5,
@@ -117,7 +117,7 @@
         }
     },
     {
-        "question": "Why does dropout help prevent overfitting in fully connected layers?",
+        "question": "How does dropout help a neural network to learn better?",
         "answer": {
             "value": "Dropout forces neurons to rely on multiple independent features, preventing complex co-adaptations and improving generalization.",
             "page": 6,
@@ -130,15 +130,15 @@
         }
     },
     {
-        "question": "How long did it take to train the network, and what hardware was used?",
+        "question": "What hardware was used for training, and for how long?",
         "answer": {
-            "value": "Training took five to six days on two NVIDIA GTX 580 3GB GPUs.",
-            "page": 7,
+            "value": "Training took five to six days on two GTX 580 3GB GPUs.",
+            "page": 2,
             "bbox": [
-                299.58,
-                235.1,
-                1101.5,
-                56.18
+                299.4,
+                1824.92,
+                1100.3,
+                208.98
             ]
         }
     },
@@ -156,28 +156,28 @@
         }
     },
     {
-        "question": "What does Sparse Coding achieve on the ILSVRC-2010 test set for Top-1 and Top-5 performance?",
+        "question": "How can similarity computation between high-dimensional vectors made more efficient?",
         "answer": {
-            "value": "47.1% and 28.2%",
-            "page": 7,
+            "value": "By training an autoencoder to compress the vectors into short binary codes.",
+            "page": 8,
             "bbox": [
-                695.2,
-                1195.68,
-                701.0,
-                196.32
+                300.56,
+                1332.3,
+                1099.64,
+                147.1
             ]
         }
     },
     {
-        "question": "How did the authors visualize what the CNN learned?",
+        "question": "How is the network's learned knowledge examined?",
         "answer": {
-            "value": "They displayed the first-layer convolutional kernels, showing frequency- and color-selective filters.",
+            "value": "The feature vectors at the last layer can be compared with other features to calculate the similarity, and similar images tend to have similar feature vectors.",
             "page": 8,
             "bbox": [
-                299.82,
-                903.3,
-                1099.87,
-                148.77
+                300.28,
+                1072.2,
+                1099.06,
+                239.5
             ]
         }
     },
@@ -195,15 +195,15 @@
         }
     },
     {
-        "question": "How did the CNN generalize similarity between images?",
+        "question": "How many neurons does each fully connected layer in the model have?",
         "answer": {
-            "value": "By computing feature vectors at the last hidden layer and using Euclidean distance for similarity search.",
-            "page": 7,
+            "value": "Each fully connected layer has 4096 neurons.",
+            "page": 5,
             "bbox": [
-                300.28,
-                1072.2,
-                1099.06,
-                239.5
+                299.01,
+                811.03,
+                1100.04,
+                208.08
             ]
         }
     },
@@ -211,7 +211,7 @@
         "question": "What future improvements did the authors suggest?",
         "answer": {
             "value": "They proposed training even larger CNNs on video sequences to leverage temporal information.",
-            "page": 7,
+            "page": 8,
             "bbox": [
                 300.39,
                 1794.38,
@@ -247,15 +247,15 @@
         }
     },
     {
-        "question": "Why do CNNs require large datasets like ImageNet for training?",
+        "question": "How many images does the ImageNet dataset have??",
         "answer": {
-            "value": "CNNs have high learning capacity and require large amounts of labeled data to generalize well without overfitting.",
-            "page": 1,
+            "value": "The ImageNet dataset contains over 15 million labeled high-resolution images in over 22,000 categories.",
+            "page": 2,
             "bbox": [
-                299.2,
-                1732.67,
-                1101.02,
-                300.9
+                299.4,
+                1033.47,
+                1101.99,
+                210.05
             ]
         }
     }
