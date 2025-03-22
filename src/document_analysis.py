@@ -43,17 +43,22 @@ class DocumentAnalysis():
         self.metadata_store = {}  # Store mapping of IDs and document page number to content
         self.vector_dir = vector_dir # Directory to write data to
 
+        # Variables to access
+        self.document = None
+
     # Read a PDF document using PyMuPDF
     # Returns list of page images in cv2 format
     def read_from_path(self, filepath):
         doc = pymupdf.open(filepath)
+        self.document = doc
         return [self.pixmap_to_cv2(page.get_pixmap(dpi=200)) for page in doc]
 
     # Function to read pdf from bytestream
     # To be used with Panel's FileInput
     def read_from_bytes(self, pdf_bytes):
         doc = pymupdf.open(stream=pdf_bytes, filetype="pdf")
-        return [self.pixmap_to_cv2(page.get_pixmap(dpi=250)) for page in doc]
+        self.document = doc
+        return [self.pixmap_to_cv2(page.get_pixmap(dpi=200)) for page in doc]
 
     # Convert PyMuPDF pixmap to cv2
     def pixmap_to_cv2(self, pixmap):
@@ -169,6 +174,7 @@ class DocumentAnalysis():
     # Writes the vectorstore and metadata into a given path
     def faiss_persist(self, subdir = ''):
         full_dir = self.vector_dir + subdir
+        if full_dir[-1] != '/': full_dir += '/' # format to dir
         if not os.path.exists(full_dir):
             os.makedirs(full_dir)
         faiss.write_index(self.faiss_index, full_dir+"faiss.index")
@@ -177,12 +183,14 @@ class DocumentAnalysis():
     # Read from existing vector stores
     def faiss_read(self, subdir = ''):
         full_dir = self.vector_dir + subdir
+        if full_dir[-1] != '/': full_dir += '/' # format to dir
         if not os.path.exists(full_dir):
-            print("Directory does not exist")
+            print(f"Directory does not exist: {full_dir}")
             return False
         self.faiss_index = faiss.read_index(full_dir+"faiss.index")
         self.metadata_store = json.load(open(full_dir+"metadata.json", 'r'), object_hook=self._convert_keys)
-    
+        return True
+
     # Convert keys from string to int when deserializing
     def _convert_keys(self, d):
         return {int(k) if k.isdigit() else k: v for k, v in d.items()}
