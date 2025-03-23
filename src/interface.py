@@ -115,7 +115,7 @@ pdf_bytes = io.BytesIO()
 document_processor.document.save(pdf_bytes)
 pdf_bytes.seek(0)
 
-interface_layout = pn.template.FastListTemplate(
+interface_layout = pn.template.MaterialTemplate(
     title="Document Analysis",
     main=[pn.Column(pdf_pane)],
     sidebar=[pn.Column(file_input, text_input, chunk_slider, process_button, message).servable()]
