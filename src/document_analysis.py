@@ -22,7 +22,7 @@ device = 'gpu' if torch.cuda.is_available() else 'cpu'
 class DocumentAnalysis():
     def __init__(self, embedding_model = "voyageai/voyage-multimodal-3", cross_encoder_model = "cross-encoder/ms-marco-MiniLM-L6-v2", vector_dir = "./data/.vectorstore/"):
          # Layout detection
-        self.model = lp.Detectron2LayoutModel('lp://PubLayNet/mask_rcnn_R_50_FPN_3x/config', 
+        self.model = lp.models.Detectron2LayoutModel('lp://PubLayNet/mask_rcnn_R_50_FPN_3x/config', 
                                  extra_config=["MODEL.ROI_HEADS.SCORE_THRESH_TEST", 0.8],
                                  label_map={0: "Text", 1: "Title", 2: "List", 3:"Table", 4:"Figure"},
                                  device=device)
