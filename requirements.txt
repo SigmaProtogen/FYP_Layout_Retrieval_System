@@ -59,7 +59,6 @@ imageio==2.37.0
 imgviz==1.7.6
 torch==2.6.0
 torchvision==0.21.0
-git+https://github.com/facebookresearch/iopath.git
 ipykernel==6.29.5
 ipython==8.32.0
 ipywidgets==8.1.5
