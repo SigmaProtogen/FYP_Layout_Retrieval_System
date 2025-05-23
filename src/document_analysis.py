@@ -14,10 +14,7 @@ import voyageai
 
 import os
 from dotenv import load_dotenv
-
 load_dotenv()
-voyage_api_key = os.getenv("VOYAGE_AI_API_KEY")
-os.environ["KMP_DUPLICATE_LIB_OK"] = os.getenv("KMP_DUPLICATE_LIB_OK")
 
 device = 'gpu' if torch.cuda.is_available() else 'cpu'
 
