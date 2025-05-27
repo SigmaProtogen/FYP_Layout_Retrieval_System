@@ -26,35 +26,35 @@ The embeddings used in this project are from [Voyage AI](https://www.voyageai.co
 Using the Windows Command Prompt (cmd) (Both Windows and VSCode terminals work fine):
 1. Pull the project from the repository link with Git.
 
-    git clone https://github.com/SigmaProtogen/FYP_Layout_Retrieval_System.git
+    ```git clone https://github.com/SigmaProtogen/FYP_Layout_Retrieval_System.git```
 
 2. Navigate to the downloaded directory with: 
 
-    cd \path\to\dir\FYP_Layout_Retrieval_System`
+    ```cd \path\to\dir\FYP_Layout_Retrieval_System```
 
 3. Create a .env file using .env.example, and paste your API key in the "VOYAGE_API_KEY" field.
 4. Create a virtual environment.
 
-    python -m venv .venv
+    ```python -m venv .venv```
 
 5. Activate the virtual environment.
 
-    .venv\Scripts\activate
+    ```.venv\Scripts\activate```
 
 6. Install packages according to requirements.txt in .venv. It may take a moment to properly install all packages.
 
-    pip install -r requirements.txt
+    ```pip install -r requirements.txt```
 
 7. Install Detectron2 for Windows.
 
-    pip install --no-build-isolation git+https://github.com/facebookresearch/detectron2.git
+    ```pip install --no-build-isolation git+https://github.com/facebookresearch/detectron2.git```
 
 8. Install iopath from GitHub directly (since on Windows, the dependency for Detectron2 contains a faulty line) 
 
-    pip install git+https://github.com/facebookresearch/iopath.git
+    ```pip install git+https://github.com/facebookresearch/iopath.git```
 
 9. Once everything is installed, to run the interface. 
-    python src/main.py
+    ```python src/main.py```
 
 On first execution, both Detectron2 and CrossEncoder models will be downloaded, and may take a while depending on your Internet connection speed.
 
